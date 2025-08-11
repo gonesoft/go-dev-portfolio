@@ -7,57 +7,59 @@ This document serves as a living roadmap, updated as I progress.
 
 ---
 
-Day 1 – Project Setup
-• ✅ Defined stack: Go + PostgreSQL + AWS
-• ✅ Created README.md with project goals
-• ✅ Created PLAN.md with roadmap
-• ✅ Set up GitHub repo gonesoft/go-dev-portfolio
-• ✅ Added docker-compose.yml for PostgreSQL
-• ✅ Created init.sql to seed users table
-• ✅ First commit & push to GitHub
+## Day 1 – Project Setup
 
-⸻
-
-Day 2 – Database Connection
-• ✅ Created .env for DB credentials
-• ✅ Installed and used godotenv to load .env
-• ✅ Connected Go to PostgreSQL using database/sql and lib/pq
-• ✅ Queried and printed users from DB
-• ✅ Added Makefile with commands (db-up, db-down, run)
-• ✅ Committed and pushed Day 2 changes
-
-⸻
-
-Day 3 – Basic HTTP API (No Framework)
-• ✅ Implemented /users endpoint using Go’s net/http
-• ✅ Refactored to standard Go folder structure:
-cmd/api/main.go
-internal/db/db.go
-internal/users/model.go
-internal/users/handler.go
-curl http://localhost:8082/users
-
-Day 4 – Single User & Create User Endpoints
-• ✅ Implemented GET /users/{id} to fetch a single user by ID
-• ✅ Implemented POST /users to create a new user with JSON input
-• ✅ Added route handling for GET and POST requests
-• ✅ Tested with curl:
-
-curl http://localhost:8080/users
-curl http://localhost:8080/users/1
-curl -X POST http://localhost:8080/users \
- -H "Content-Type: application/json" \
- -d '{"name":"Jane Doe","email":"jane@example.com"}'
+- ✅ Defined stack: Go + PostgreSQL + AWS
+- ✅ Created `README.md` with project goals
+- ✅ Created `PLAN.md` with roadmap
+- ✅ Set up GitHub repo `gonesoft/go-dev-portfolio`
+- ✅ Added `docker-compose.yml` for PostgreSQL
+- ✅ Created `init.sql` to seed `users` table
+- ✅ First commit & push to GitHub
 
 ---
 
-## Week 0 (Day 1 — Today)
+## Day 2 – Database Connection
 
-- Install/update Go, Docker, psql.
-- Initialize GitHub repo with README.md & PLAN.md.
-- Create local Postgres DB via Docker (`users` table).
-- Complete first modules of Go Tour.
-- Commit initial code (`hello.go`, SQL script).
+- ✅ Created `.env` for DB credentials
+- ✅ Installed and used `godotenv` to load `.env`
+- ✅ Connected Go to PostgreSQL using `database/sql` and `lib/pq`
+- ✅ Queried and printed users from DB
+- ✅ Added `Makefile` with commands (`db-up`, `db-down`, `run`)
+- ✅ Committed and pushed Day 2 changes
+
+---
+
+## Day 3 – Basic HTTP API (No Framework)
+
+- ✅ Implemented `/users` endpoint using Go’s `net/http`
+- ✅ Refactored to standard Go folder structure:
+  ```
+  cmd/api/main.go
+  internal/db/db.go
+  internal/users/model.go
+  internal/users/handler.go
+  ```
+- ✅ Tested:
+  ```bash
+  curl http://localhost:8082/users
+  ```
+
+---
+
+## Day 4 – Single User & Create User Endpoints
+
+- ✅ Implemented `GET /users/{id}` to fetch a single user by ID
+- ✅ Implemented `POST /users` to create a new user with JSON input
+- ✅ Added route handling for GET and POST requests
+- ✅ Tested:
+  ```bash
+  curl http://localhost:8080/users
+  curl http://localhost:8080/users/1
+  curl -X POST http://localhost:8080/users \
+    -H "Content-Type: application/json" \
+    -d '{"name":"Jane Doe","email":"jane@example.com"}'
+  ```
 
 ---
 
@@ -130,3 +132,5 @@ curl -X POST http://localhost:8080/users \
 ---
 
 ## Check-in Format
+
+_TBD_
