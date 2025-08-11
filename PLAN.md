@@ -63,6 +63,25 @@ This document serves as a living roadmap, updated as I progress.
 
 ---
 
+## Day 5 – Update & Delete Users
+
+- ✅ Implemented `PUT /users/{id}` to update a user's name and email
+- ✅ Implemented `DELETE /users/{id}` to remove a user by ID
+- ✅ Added route handling for PUT and DELETE requests
+- ✅ Tested:
+
+  ```bash
+  # Update user
+  curl -X PUT http://localhost:8080/users/1 \
+    -H "Content-Type: application/json" \
+    -d '{"name":"Updated Name","email":"updated@example.com"}'
+
+  # Delete user
+  curl -X DELETE http://localhost:8080/users/1
+  ```
+
+  ***
+
 ## Weeks 1–2 — Fundamentals
 
 **Goal:** Build a basic REST API in Go with CRUD against Postgres, containerized with Docker.

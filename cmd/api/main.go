@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodGet {
 			users.GetUsers(w, r)
@@ -20,9 +21,14 @@ func main() {
 	})
 
 	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
+		switch r.Method {
+		case http.MethodPut:
+			users.UpdateUser(w, r)
+		case http.MethodDelete:
+			users.DeleteUser(w, r)
+		case http.MethodGet:
 			users.GetUserByID(w, r)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
