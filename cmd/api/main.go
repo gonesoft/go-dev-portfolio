@@ -9,9 +9,25 @@ import (
 )
 
 func main() {
-	http.HandleFunc("/users", users.GetUsers)
+	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			users.GetUsers(w, r)
+		} else if r.Method == http.MethodPost {
+			users.CreateUser(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
 
-	fmt.Println("Starting server on :8082")
-	log.Fatal(http.ListenAndServe(":8082", nil))
+	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == http.MethodGet {
+			users.GetUserByID(w, r)
+		} else {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	fmt.Println("Server running on http://localhost:8083")
+	log.Fatal(http.ListenAndServe(":8083", nil))
 
 }

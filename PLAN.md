@@ -37,6 +37,18 @@ internal/users/model.go
 internal/users/handler.go
 curl http://localhost:8082/users
 
+Day 4 – Single User & Create User Endpoints
+• ✅ Implemented GET /users/{id} to fetch a single user by ID
+• ✅ Implemented POST /users to create a new user with JSON input
+• ✅ Added route handling for GET and POST requests
+• ✅ Tested with curl:
+
+curl http://localhost:8080/users
+curl http://localhost:8080/users/1
+curl -X POST http://localhost:8080/users \
+ -H "Content-Type: application/json" \
+ -d '{"name":"Jane Doe","email":"jane@example.com"}'
+
 ---
 
 ## Week 0 (Day 1 — Today)
