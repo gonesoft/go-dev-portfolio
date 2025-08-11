@@ -11,7 +11,7 @@ db-down:
 
 # run app
 run:
-	go run main.go
+	go run ./cmd/api
 
 # Instalar dependencias
 deps:

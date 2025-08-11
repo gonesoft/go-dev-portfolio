@@ -7,6 +7,38 @@ This document serves as a living roadmap, updated as I progress.
 
 ---
 
+Day 1 – Project Setup
+• ✅ Defined stack: Go + PostgreSQL + AWS
+• ✅ Created README.md with project goals
+• ✅ Created PLAN.md with roadmap
+• ✅ Set up GitHub repo gonesoft/go-dev-portfolio
+• ✅ Added docker-compose.yml for PostgreSQL
+• ✅ Created init.sql to seed users table
+• ✅ First commit & push to GitHub
+
+⸻
+
+Day 2 – Database Connection
+• ✅ Created .env for DB credentials
+• ✅ Installed and used godotenv to load .env
+• ✅ Connected Go to PostgreSQL using database/sql and lib/pq
+• ✅ Queried and printed users from DB
+• ✅ Added Makefile with commands (db-up, db-down, run)
+• ✅ Committed and pushed Day 2 changes
+
+⸻
+
+Day 3 – Basic HTTP API (No Framework)
+• ✅ Implemented /users endpoint using Go’s net/http
+• ✅ Refactored to standard Go folder structure:
+cmd/api/main.go
+internal/db/db.go
+internal/users/model.go
+internal/users/handler.go
+curl http://localhost:8082/users
+
+---
+
 ## Week 0 (Day 1 — Today)
 
 - Install/update Go, Docker, psql.
