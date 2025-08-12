@@ -82,7 +82,7 @@ This document serves as a living roadmap, updated as I progress.
 
   ***
 
-## Day 6 – Validation, Partial Updates, Soft Delete & Pagination
+## Day 6 - 8 – Validation, Partial Updates, Soft Delete & Pagination
 
 - ✅ Added request validation for POST and PUT.
 - ✅ Created unified JSON response helper for success/errors.
@@ -91,6 +91,22 @@ This document serves as a living roadmap, updated as I progress.
 - ✅ Implemented pagination for GET /users with page & limit query params.
 - ✅ Updated queries to ignore deleted users.
 - ✅ Tested endpoints with curl for valid/invalid inputs.
+
+---
+
+## Day 9 – Search, Sorting, and Total Count for Users
+
+- ✅ Enhanced `GET /users` to support:
+  - Search by name or email using `?search=` query parameter (case-insensitive).
+  - Sorting by `name` or `created_at` with `?sort=` and order control via `?order=asc|desc`.
+  - Pagination with `?page=` and `?limit=`.
+  - Total record count and total pages returned in the JSON response.
+- ✅ Ensured soft-deleted users (`deleted_at` IS NOT NULL) are excluded from results.
+- ✅ Tested with curl:
+  ```bash
+  curl "http://localhost:8083/users?search=john&sort=created_at&order=desc&page=1&limit=5"
+  curl "http://localhost:8083/users?search=doe&page=2&limit=2"
+  ```
 
 ---
 

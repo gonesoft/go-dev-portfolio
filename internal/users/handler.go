@@ -132,14 +132,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // GetUsers handles GET /users request :)
 func GetUsers(w http.ResponseWriter, r *http.Request) {
-	// Connect to the database
-	database, err := db.Connect()
-	if err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
-		return
-	}
-	defer database.Close()
-
+	//Pagination
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
 	if page < 1 {
@@ -150,9 +143,45 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 	offset := (page - 1) * limit
 
+	//searching
+	searchTerm := r.URL.Query().Get("search")
+	if searchTerm != "" {
+		// Sanitize search term to prevent SQL injection
+		searchTerm = strings.TrimSpace(searchTerm)
+		searchTerm = "%" + strings.ToLower(searchTerm) + "%"
+	} else {
+		searchTerm = "%"
+	}
+
+	// Sorting. If no sort parameter is provided, default to sorting by name
+	sortBy := r.URL.Query().Get("sort")
+	if sortBy == "" && sortBy != "email" && sortBy != "created_at" {
+		sortBy = "name"
+	}
+
+	//ordering
+	order := strings.ToUpper(r.URL.Query().Get("order"))
+	if order != "ASC" && order != "DESC" {
+		order = "ASC"
+	}
+
+	// Connect to the database
+	database, err := db.Connect()
+	if err != nil {
+		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
+		return
+	}
+	defer database.Close()
+
 	// Query the database for users
-	rows, err := database.Query(`SELECT id, name, email FROM users WHERE deleted_at 
-	IS NULL LIMIT $1 OFFSET $2`, limit, offset)
+	rows, err := database.Query(`
+            SELECT id, name, email
+            FROM users
+            WHERE deleted_at IS NULL
+              AND (LOWER(name) LIKE $1 OR LOWER(email) LIKE $1)
+            ORDER BY `+sortBy+` `+order+`
+            LIMIT $2 OFFSET $3
+        `, limit, offset)
 	if err != nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to query users: "+err.Error())
 		return
@@ -163,14 +192,14 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var user User
 		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-			httphelper.Error(w, http.StatusInternalServerError, "Failed to scan user")
+			httphelper.Error(w, http.StatusInternalServerError, "Failed to scan user: "+err.Error())
 			return
 		}
 		allUsers = append(allUsers, user)
 	}
 
 	if err := rows.Err(); err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Error processing users")
+		httphelper.Error(w, http.StatusInternalServerError, "Error processing users: "+err.Error())
 		return
 	}
 
