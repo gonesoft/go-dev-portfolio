@@ -82,6 +82,18 @@ This document serves as a living roadmap, updated as I progress.
 
   ***
 
+## Day 6 – Validation, Partial Updates, Soft Delete & Pagination
+
+- ✅ Added request validation for POST and PUT.
+- ✅ Created unified JSON response helper for success/errors.
+- ✅ Updated PUT /users/{id} to allow partial updates.
+- ✅ Modified DELETE /users/{id} to perform soft deletes (added deleted_at column).
+- ✅ Implemented pagination for GET /users with page & limit query params.
+- ✅ Updated queries to ignore deleted users.
+- ✅ Tested endpoints with curl for valid/invalid inputs.
+
+---
+
 ## Weeks 1–2 — Fundamentals
 
 **Goal:** Build a basic REST API in Go with CRUD against Postgres, containerized with Docker.
