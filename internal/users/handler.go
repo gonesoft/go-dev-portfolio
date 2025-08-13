@@ -35,16 +35,12 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer database.Close()
 
-	result, err := database.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3", user.Name, user.Email, id)
+	err = UpdateUserFromDB(database, id, user.Name, user.Email)
 	if err != nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to update user")
 		return
 	}
-	rowsAffected, _ := result.RowsAffected()
-	if rowsAffected == 0 {
-		httphelper.Error(w, http.StatusNotFound, "User not found")
-		return
-	}
+
 	w.WriteHeader(http.StatusNoContent)
 
 }
@@ -62,16 +58,13 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	defer database.Close()
-	result, err := database.Exec("UPDATE users SET deleted_at = NOW() WHERE id = $1", id)
+
+	err = DeleteUserFromDB(database, id)
 	if err != nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to delete user")
 		return
 	}
-	rowsAffected, _ := result.RowsAffected()
-	if rowsAffected == 0 {
-		httphelper.Error(w, http.StatusNotFound, "User not found")
-		return
-	}
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -89,16 +82,20 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 	}
 	defer database.Close()
 
-	var u User
-	database.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Email)
+	var user User
+	user, err = GetUserByIDFromDB(database, id)
+	if err != nil {
+		httphelper.Error(w, http.StatusInternalServerError, "Failed to fetch user")
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(u)
+	json.NewEncoder(w).Encode(user)
 
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user User
+	var user *User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		httphelper.Error(w, http.StatusBadRequest, "Invalid request payload")
 		return
@@ -117,7 +114,11 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	defer database.Close()
 
-	database.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id", user.Name, user.Email).Scan(&user.ID)
+	err := CreateUserInDB(database, user)
+	if err != nil {
+		httphelper.Error(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)

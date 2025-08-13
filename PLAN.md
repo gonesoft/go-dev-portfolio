@@ -128,7 +128,21 @@ This document serves as a living roadmap, updated as I progress.
   ```bash
   make test
   ```
-  ⸻
+
+---
+
+Day 11 – Update & Delete Operations in Repository
+
+• ✅ Implemented `UpdateUser` repository function to modify name/email by ID.
+• ✅ Implemented `DeleteUser` repository function to soft-delete a user by setting `deleted_at` column.
+• ✅ Added unit tests for `UpdateUser` and `DeleteUser`:
+
+- Verified update modifies correct record and persists changes.
+- Verified delete marks record as deleted without removing it from DB.
+  • ✅ Confirmed tests run against `postgres-test` and pass consistently.
+  • ✅ Maintained DB cleanup before tests to ensure deterministic results.
+
+⸻
 
 ## Weeks 1–2 — Fundamentals
 
