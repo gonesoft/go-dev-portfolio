@@ -11,13 +11,15 @@ import (
 func main() {
 
 	http.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
+		switch r.Method {
+		case http.MethodGet:
 			users.GetUsers(w, r)
-		} else if r.Method == http.MethodPost {
+		case http.MethodPost:
 			users.CreateUser(w, r)
-		} else {
+		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
+
 	})
 
 	http.HandleFunc("/users/", func(w http.ResponseWriter, r *http.Request) {

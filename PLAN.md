@@ -110,6 +110,26 @@ This document serves as a living roadmap, updated as I progress.
 
 ---
 
+## Day 10 – Unit Tests for Database Layer
+
+- ✅ Set up a dedicated test database using Docker.
+- ✅ Installed `testify` for assertions.
+- ✅ Created unit tests for:
+  - Creating a user.
+  - Fetching a user by ID.
+  - Listing users with pagination.
+- ✅ Ensured tests run in isolation by cleaning data between tests.
+- ✅ Added `TestMain` in repository test to ensure DB connection before tests.
+- ✅ Cleared `users` table before running tests to avoid data collisions.
+- ✅ Created `TestCreateUserAndFetch` to insert and fetch users from DB.
+- ✅ Confirmed tests run successfully against `postgres-test` container.
+- ✅ Validated DB retry logic in `Connect()` resolves timing issues.
+- ✅ Ran tests successfully:
+  ```bash
+  make test
+  ```
+  ⸻
+
 ## Weeks 1–2 — Fundamentals
 
 **Goal:** Build a basic REST API in Go with CRUD against Postgres, containerized with Docker.

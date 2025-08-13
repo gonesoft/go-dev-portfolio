@@ -21,3 +21,14 @@ deps:
 db-reset:
 	$(DOCKER_COMPOSE) down -v
 	$(DOCKER_COMPOSE) up -d
+
+# run db test
+db-test-up:
+	$(DOCKER_COMPOSE) up -d postgres-test
+
+# run db test down
+db-test-down:
+	$(DOCKER_COMPOSE) down -v postgres-test
+
+test:
+	go test -v ./...

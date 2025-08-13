@@ -28,8 +28,8 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	database, err := db.Connect()
-	if err != nil {
+	database := db.Connect()
+	if database == nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
@@ -56,8 +56,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
-	database, err := db.Connect()
-	if err != nil {
+	database := db.Connect()
+	if database == nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
@@ -82,19 +82,16 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusBadRequest, "Invalid user ID")
 		return
 	}
-	database, err := db.Connect()
-	if err != nil {
+	database := db.Connect()
+	if database == nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
 	defer database.Close()
 
 	var u User
-	err = database.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Email)
-	if err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "User not found")
-		return
-	}
+	database.QueryRow("SELECT id, name, email FROM users WHERE id = $1", id).Scan(&u.ID, &u.Name, &u.Email)
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(u)
 
@@ -113,18 +110,15 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Connect to the database
-	database, err := db.Connect()
-	if err != nil {
+	database := db.Connect()
+	if database == nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
 	defer database.Close()
 
-	err = database.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id", user.Name, user.Email).Scan(&user.ID)
-	if err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
-		return
-	}
+	database.QueryRow("INSERT INTO users (name, email) VALUES ($1, $2) RETURNING id", user.Name, user.Email).Scan(&user.ID)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(user)
@@ -132,6 +126,7 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 
 // GetUsers handles GET /users request :)
 func GetUsers(w http.ResponseWriter, r *http.Request) {
+
 	//Pagination
 	page, _ := strconv.Atoi(r.URL.Query().Get("page"))
 	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
@@ -166,46 +161,25 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Connect to the database
-	database, err := db.Connect()
-	if err != nil {
+	database := db.Connect()
+	if database == nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
 	defer database.Close()
 
-	// Query the database for users
-	rows, err := database.Query(`
-            SELECT id, name, email
-            FROM users
-            WHERE deleted_at IS NULL
-              AND (LOWER(name) LIKE $1 OR LOWER(email) LIKE $1)
-            ORDER BY `+sortBy+` `+order+`
-            LIMIT $2 OFFSET $3
-        `, limit, offset)
+	usersList, total, err := GetUsersFromDB(database, searchTerm, limit, offset, sortBy, order)
 	if err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Failed to query users: "+err.Error())
-		return
-	}
-	defer rows.Close()
-
-	var allUsers []User
-	for rows.Next() {
-		var user User
-		if err := rows.Scan(&user.ID, &user.Name, &user.Email); err != nil {
-			httphelper.Error(w, http.StatusInternalServerError, "Failed to scan user: "+err.Error())
-			return
-		}
-		allUsers = append(allUsers, user)
-	}
-
-	if err := rows.Err(); err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Error processing users: "+err.Error())
+		httphelper.Error(w, http.StatusInternalServerError, "Failed to fetch users: "+err.Error())
 		return
 	}
 
+	totalPages := (total + limit - 1) / limit // Calculate total pages
 	httphelper.JSON(w, http.StatusOK, map[string]interface{}{
-		"page":  page,
-		"limit": limit,
-		"data":  allUsers,
+		"page":        page,
+		"limit":       limit,
+		"total":       total,
+		"total_pages": totalPages,
+		"data":        usersList,
 	})
 }
