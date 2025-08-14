@@ -142,6 +142,25 @@ Day 11 – Update & Delete Operations in Repository
   • ✅ Confirmed tests run against `postgres-test` and pass consistently.
   • ✅ Maintained DB cleanup before tests to ensure deterministic results.
 
+---
+
+Day 12 – Data Integrity & End-to-End (E2E) Tests
+
+• ✅ Added `deleted_at IS NULL` filter to all SELECT queries in repository layer to exclude soft-deleted users from results.
+• ✅ Implemented unique email validation in `CreateUser` repository method.
+• ✅ Updated HTTP handlers to:
+
+- Return 409 Conflict when attempting to create a user with an existing email.
+- Return 404 Not Found when fetching a deleted or non-existent user.
+  • ✅ Created integration tests using `httptest.NewServer` to:
+
+1. Create a user via POST /users
+2. Fetch created user via GET /users/{id}
+3. Update user via PUT /users/{id}
+4. Soft delete user via DELETE /users/{id}
+5. Attempt to fetch deleted user (expect 404)
+   • ✅ Verified all E2E tests pass against `postgres-test`.
+
 ⸻
 
 ## Weeks 1–2 — Fundamentals

@@ -33,7 +33,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
-	defer database.Close()
+	//defer database.Close()
 
 	err = UpdateUserFromDB(database, id, user.Name, user.Email)
 	if err != nil {
@@ -57,7 +57,7 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
-	defer database.Close()
+	//defer database.Close()
 
 	err = DeleteUserFromDB(database, id)
 	if err != nil {
@@ -80,12 +80,12 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
-	defer database.Close()
+	//defer database.Close()
 
 	var user User
 	user, err = GetUserByIDFromDB(database, id)
 	if err != nil {
-		httphelper.Error(w, http.StatusInternalServerError, "Failed to fetch user")
+		httphelper.Error(w, http.StatusNotFound, "User not found")
 		return
 	}
 
@@ -95,7 +95,7 @@ func GetUserByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateUser(w http.ResponseWriter, r *http.Request) {
-	var user *User
+	var user User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		httphelper.Error(w, http.StatusBadRequest, "Invalid request payload")
 		return
@@ -112,9 +112,9 @@ func CreateUser(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
-	defer database.Close()
+	//defer database.Close()
 
-	err := CreateUserInDB(database, user)
+	err := CreateUserInDB(database, &user)
 	if err != nil {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to create user: "+err.Error())
 		return
@@ -167,7 +167,7 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to connect to the database")
 		return
 	}
-	defer database.Close()
+	//defer database.Close()
 
 	usersList, total, err := GetUsersFromDB(database, searchTerm, limit, offset, sortBy, order)
 	if err != nil {

@@ -19,15 +19,15 @@ var (
 	once sync.Once
 )
 
-func getEnv() {
-	cwd, _ := os.Getwd()
-	root := filepath.Join(cwd, ".env")
-	if _, err := os.Stat(root); err == nil {
-		_ = godotenv.Load(root)
-	} else {
-		log.Printf("No .env file found in %s", root)
-	}
-}
+// func getEnv() {
+// 	cwd, _ := os.Getwd()
+// 	root := filepath.Join(cwd, ".env")
+// 	if _, err := os.Stat(root); err == nil {
+// 		_ = godotenv.Load(root)
+// 	} else {
+// 		log.Printf("No .env file found in %s", root)
+// 	}
+// }
 
 // Connect establishes a connection to the database using environment variables.
 func Connect() *sql.DB {

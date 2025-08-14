@@ -81,3 +81,14 @@ func TestGetUserByID(t *testing.T) {
 	assert.Equal(t, "New User", user.Name, "User name does not match")
 
 }
+
+func TestCreateUserInDB(t *testing.T) {
+	testDB := db.Connect()
+
+	var user User
+	user.Name = "Test User"
+	user.Email = "testuser@example.com"
+	err := CreateUserInDB(testDB, &user)
+	assert.NoError(t, err, "Failed to insert user")
+	assert.Greater(t, user.ID, 0, "User ID should be greater than 0")
+}
