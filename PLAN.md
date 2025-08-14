@@ -5,8 +5,6 @@
 A structured plan to master backend development with **Go**, **PostgreSQL**, and **AWS**.  
 This document serves as a living roadmap, updated as I progress.
 
----
-
 ## Day 1 – Project Setup
 
 - ✅ Defined stack: Go + PostgreSQL + AWS
@@ -17,8 +15,6 @@ This document serves as a living roadmap, updated as I progress.
 - ✅ Created `init.sql` to seed `users` table
 - ✅ First commit & push to GitHub
 
----
-
 ## Day 2 – Database Connection
 
 - ✅ Created `.env` for DB credentials
@@ -27,8 +23,6 @@ This document serves as a living roadmap, updated as I progress.
 - ✅ Queried and printed users from DB
 - ✅ Added `Makefile` with commands (`db-up`, `db-down`, `run`)
 - ✅ Committed and pushed Day 2 changes
-
----
 
 ## Day 3 – Basic HTTP API (No Framework)
 
@@ -45,8 +39,6 @@ This document serves as a living roadmap, updated as I progress.
   curl http://localhost:8082/users
   ```
 
----
-
 ## Day 4 – Single User & Create User Endpoints
 
 - ✅ Implemented `GET /users/{id}` to fetch a single user by ID
@@ -60,8 +52,6 @@ This document serves as a living roadmap, updated as I progress.
     -H "Content-Type: application/json" \
     -d '{"name":"Jane Doe","email":"jane@example.com"}'
   ```
-
----
 
 ## Day 5 – Update & Delete Users
 
@@ -80,8 +70,6 @@ This document serves as a living roadmap, updated as I progress.
   curl -X DELETE http://localhost:8080/users/1
   ```
 
-  ***
-
 ## Day 6 - 8 – Validation, Partial Updates, Soft Delete & Pagination
 
 - ✅ Added request validation for POST and PUT.
@@ -91,8 +79,6 @@ This document serves as a living roadmap, updated as I progress.
 - ✅ Implemented pagination for GET /users with page & limit query params.
 - ✅ Updated queries to ignore deleted users.
 - ✅ Tested endpoints with curl for valid/invalid inputs.
-
----
 
 ## Day 9 – Search, Sorting, and Total Count for Users
 
@@ -107,8 +93,6 @@ This document serves as a living roadmap, updated as I progress.
   curl "http://localhost:8083/users?search=john&sort=created_at&order=desc&page=1&limit=5"
   curl "http://localhost:8083/users?search=doe&page=2&limit=2"
   ```
-
----
 
 ## Day 10 – Unit Tests for Database Layer
 
@@ -129,9 +113,7 @@ This document serves as a living roadmap, updated as I progress.
   make test
   ```
 
----
-
-Day 11 – Update & Delete Operations in Repository
+## Day 11 – Update & Delete Operations in Repository
 
 • ✅ Implemented `UpdateUser` repository function to modify name/email by ID.
 • ✅ Implemented `DeleteUser` repository function to soft-delete a user by setting `deleted_at` column.
@@ -142,9 +124,7 @@ Day 11 – Update & Delete Operations in Repository
   • ✅ Confirmed tests run against `postgres-test` and pass consistently.
   • ✅ Maintained DB cleanup before tests to ensure deterministic results.
 
----
-
-Day 12 – Data Integrity & End-to-End (E2E) Tests
+## Day 12 – Data Integrity & End-to-End (E2E) Tests
 
 • ✅ Added `deleted_at IS NULL` filter to all SELECT queries in repository layer to exclude soft-deleted users from results.
 • ✅ Implemented unique email validation in `CreateUser` repository method.
@@ -160,6 +140,23 @@ Day 12 – Data Integrity & End-to-End (E2E) Tests
 4. Soft delete user via DELETE /users/{id}
 5. Attempt to fetch deleted user (expect 404)
    • ✅ Verified all E2E tests pass against `postgres-test`.
+
+⸻
+
+## Day 13 – Robust Update & Delete Operations
+
+• ✅ Added email uniqueness validation to `UpdateUser` repository method to prevent duplicate emails when updating.
+• ✅ Modified `UpdateUser` and `DeleteUser` to return `sql.ErrNoRows` when no matching row exists or the user is soft-deleted.
+• ✅ Updated HTTP handlers to:
+
+- Return 404 Not Found when attempting to update or delete a non-existent/deleted user.
+- Return 409 Conflict when updating to an email that already exists for another user.
+  • ✅ Added E2E tests covering:
+
+1. Updating a user with an existing email → expect 409 Conflict.
+2. Updating a non-existent user → expect 404 Not Found.
+3. Deleting a non-existent user → expect 404 Not Found.
+   • ✅ Verified all repository and E2E tests pass for update/delete scenarios.
 
 ⸻
 
