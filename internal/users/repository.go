@@ -2,6 +2,7 @@ package users
 
 import (
 	"database/sql"
+	"fmt"
 	"strings"
 )
 
@@ -50,14 +51,23 @@ func GetUsersFromDB(db *sql.DB, search string, limit, offset int, sortBy, order 
 	return usersList, total, nil
 }
 
-func UpdateUserFromDB(db *sql.DB, id int, name, email string) error {
+func UpdateUserFromDB(db *sql.DB, id int, user *User) error {
+	//check if email exists
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM users WHERE email = $1 AND id != $2)", user.Email, id).Scan(&exists)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return fmt.Errorf("email %s already exists", user.Email)
+	}
 	// Validate ID
 	if id <= 0 {
-		return sql.ErrNoRows
+		return fmt.Errorf("invalid user ID: %d", id)
 	}
 
 	// Update user
-	result, err := db.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3", name, email, id)
+	result, err := db.Exec("UPDATE users SET name = $1, email = $2 WHERE id = $3 AND deleted_at IS NULL", user.Name, user.Email, id)
 	if err != nil {
 		return err
 	}
@@ -79,7 +89,7 @@ func DeleteUserFromDB(db *sql.DB, id int) error {
 	}
 
 	// Soft delete user
-	result, err := db.Exec("UPDATE users SET deleted_at = NOW() WHERE id = $1", id)
+	result, err := db.Exec("UPDATE users SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL", id)
 	if err != nil {
 		return err
 	}

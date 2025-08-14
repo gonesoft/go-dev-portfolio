@@ -141,8 +141,6 @@ This document serves as a living roadmap, updated as I progress.
 5. Attempt to fetch deleted user (expect 404)
    • ✅ Verified all E2E tests pass against `postgres-test`.
 
-⸻
-
 ## Day 13 – Robust Update & Delete Operations
 
 • ✅ Added email uniqueness validation to `UpdateUser` repository method to prevent duplicate emails when updating.
@@ -157,8 +155,6 @@ This document serves as a living roadmap, updated as I progress.
 2. Updating a non-existent user → expect 404 Not Found.
 3. Deleting a non-existent user → expect 404 Not Found.
    • ✅ Verified all repository and E2E tests pass for update/delete scenarios.
-
-⸻
 
 ## Weeks 1–2 — Fundamentals
 

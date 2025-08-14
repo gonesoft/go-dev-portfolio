@@ -46,47 +46,89 @@ func TestUserLifeCycle(t *testing.T) {
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
-	// 1) Create a user
-	resp, err := http.Post(
-		ts.URL+"/users",
-		"application/json",
-		strings.NewReader(`{"name":"Test Creation","email":"testcreation@example.com"}`),
-	)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusCreated, resp.StatusCode)
 	var createdUser User
-	_ = json.NewDecoder(resp.Body).Decode(&createdUser)
-	resp.Body.Close()
+
+	// 1) Create a user
+	t.Run("Create User", func(t *testing.T) {
+		resp, err := http.Post(
+			ts.URL+"/users",
+			"application/json",
+			strings.NewReader(`{"name":"Test Creation","email":"testcreation@example.com"}`),
+		)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusCreated, resp.StatusCode)
+
+		_ = json.NewDecoder(resp.Body).Decode(&createdUser)
+		resp.Body.Close()
+	})
 
 	// 2) Fetch the user by ID
-	resp, err = http.Get(ts.URL + "/users/" + strconv.Itoa(createdUser.ID))
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	resp.Body.Close()
+	t.Run("Fetch User", func(t *testing.T) {
+		resp, err := http.Get(ts.URL + "/users/" + strconv.Itoa(createdUser.ID))
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		resp.Body.Close()
+	})
 
 	// 3) Update the user (correct URL with slash)
-	req, _ := http.NewRequest(
-		http.MethodPut,
-		ts.URL+"/users/"+strconv.Itoa(createdUser.ID),
-		strings.NewReader(`{"name":"Updated","email":"updated@example.com"}`),
-	)
-	req.Header.Set("Content-Type", "application/json")
-	updatedResp, err := http.DefaultClient.Do(req)
-	assert.NoError(t, err)
-	// Expect 204 No Content if your handler follows that convention
-	assert.Equal(t, http.StatusNoContent, updatedResp.StatusCode)
-	updatedResp.Body.Close()
+	t.Run("Update User", func(t *testing.T) {
+		req, _ := http.NewRequest(
+			http.MethodPut,
+			ts.URL+"/users/"+strconv.Itoa(createdUser.ID),
+			strings.NewReader(`{"name":"Updated","email":"updated@example.com"}`),
+		)
+		req.Header.Set("Content-Type", "application/json")
+		updatedResp, err := http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+		// Expect 204 No Content if your handler follows that convention
+		assert.Equal(t, http.StatusNoContent, updatedResp.StatusCode)
+		updatedResp.Body.Close()
+	})
 
 	// 4) Delete the user
-	req, _ = http.NewRequest(http.MethodDelete, ts.URL+"/users/"+strconv.Itoa(createdUser.ID), nil)
-	delResp, err := http.DefaultClient.Do(req)
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNoContent, delResp.StatusCode)
-	delResp.Body.Close()
+	t.Run("Delete User", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/"+strconv.Itoa(createdUser.ID), nil)
+		delResp, err := http.DefaultClient.Do(req)
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusNoContent, delResp.StatusCode)
+		delResp.Body.Close()
+	})
 
 	// 5) Verify user is deleted -> 404
-	resp, err = http.Get(ts.URL + "/users/" + strconv.Itoa(createdUser.ID))
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusNotFound, resp.StatusCode)
-	resp.Body.Close()
+	t.Run("Verify User Deletion", func(t *testing.T) {
+		resp, err := http.Get(ts.URL + "/users/" + strconv.Itoa(createdUser.ID))
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+		resp.Body.Close()
+	})
+
+	// 6) Test email duplication
+	t.Run("Test Email Duplication expected 409", func(t *testing.T) {
+		_, _ = http.Post(ts.URL+"/users", "application/json", strings.NewReader(
+			`{"name":"User1","email":"user1@example.com"}`))
+		_, _ = http.Post(ts.URL+"/users", "application/json", strings.NewReader(
+			`{"name":"User2","email":"user2@example.com"}`))
+
+		req, _ := http.NewRequest(http.MethodPut, ts.URL+"/users/2",
+			strings.NewReader(`{"name":"User2 Updated","email":"user1@example.com"}`))
+		req.Header.Set("Content-Type", "application/json")
+		resp, _ := http.DefaultClient.Do(req)
+		assert.Equal(t, http.StatusConflict, resp.StatusCode)
+	})
+
+	// 7) Test update non-existent user
+	t.Run("Update non-existent user returns 404", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodPut, ts.URL+"/users/9999",
+			strings.NewReader(`{"name":"Doesn't exist","email":"nope@example.com"}`))
+		req.Header.Set("Content-Type", "application/json")
+		resp, _ := http.DefaultClient.Do(req)
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
+
+	// 8) Test delete non-existent user
+	t.Run("Delete non-existent user returns 404", func(t *testing.T) {
+		req, _ := http.NewRequest(http.MethodDelete, ts.URL+"/users/9999", nil)
+		resp, _ := http.DefaultClient.Do(req)
+		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
+	})
 }

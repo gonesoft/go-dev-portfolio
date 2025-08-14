@@ -39,11 +39,15 @@ func TestUpdateUser(t *testing.T) {
 	testDB := db.Connect()
 
 	var id int
+	user := User{
+		Name:  "New Name",
+		Email: "new@example.com",
+	}
 	err := testDB.QueryRow(`INSERT INTO users (name, email) 
 		VALUES ($1, $2) RETURNING id`, "Old Nme", "old@example.com").Scan(&id)
 	assert.NoError(t, err, "Failed to insert user")
 
-	err = UpdateUserFromDB(testDB, id, "New Name", "new@example.com")
+	err = UpdateUserFromDB(testDB, id, &user)
 	assert.NoError(t, err, "Failed to update user")
 
 	var udatedName, updatedEmail string

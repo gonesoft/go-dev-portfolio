@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -35,8 +36,16 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	//defer database.Close()
 
-	err = UpdateUserFromDB(database, id, user.Name, user.Email)
+	err = UpdateUserFromDB(database, id, &user)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			httphelper.Error(w, http.StatusNotFound, "User not found")
+			return
+		}
+		if strings.Contains(err.Error(), "exists") {
+			httphelper.Error(w, http.StatusConflict, "Email already exists")
+			return
+		}
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to update user")
 		return
 	}
@@ -61,6 +70,10 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	err = DeleteUserFromDB(database, id)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			httphelper.Error(w, http.StatusNotFound, "User not found")
+			return
+		}
 		httphelper.Error(w, http.StatusInternalServerError, "Failed to delete user")
 		return
 	}
