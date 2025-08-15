@@ -2,9 +2,102 @@ package users
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strings"
 )
+
+var (
+	ErrInvalidSort  = errors.New("invalid sort field")
+	ErrInvalidOrder = errors.New("invalid sort order")
+)
+
+type ListOptions struct {
+	Search string
+	Limit  int
+	Offset int
+	SortBy string
+	Order  string
+}
+
+func ListUsers(db *sql.DB, opt ListOptions) ([]User, int, error) {
+	if opt.Limit <= 0 {
+		opt.Limit = 10
+	}
+	if opt.Offset < 0 {
+		opt.Offset = 0
+	}
+	if opt.SortBy == "" {
+		opt.SortBy = "id"
+	}
+	if opt.Order == "" {
+		opt.Order = "ASC"
+	}
+
+	allowedSort := map[string]bool{
+		"id":         true,
+		"name":       true,
+		"email":      true,
+		"created_at": true,
+	}
+	if !allowedSort[strings.ToLower(opt.SortBy)] {
+		return nil, 0, ErrInvalidSort
+	}
+
+	sortCol := strings.ToLower(opt.SortBy)
+
+	order := strings.ToLower(opt.SortBy)
+	if order != "ASC" && order != "DESC" {
+		return nil, 0, ErrInvalidOrder
+	}
+
+	//search term
+	search := "%"
+	if strings.TrimSpace(opt.Search) != "" {
+		search = "%" + strings.ToLower(strings.TrimSpace(opt.Search)) + "%"
+	}
+
+	var total int
+	if err := db.QueryRow(`
+		SELECT COUNT(*)
+		FROM users
+		WHERE deleted_at IS NULL
+		AND (LOWER(name) LIKE $1 OR LOWER(email) LIKE $2)
+	`, search, search).Scan(&total); err != nil {
+		return nil, 0, err
+	}
+
+	// Page data
+	// ORDER BY must be injected *after* validation (no placeholders allowed for identifiers)
+	query := fmt.Sprintf(`
+		SELECT id, name, email
+		FROM users
+		WHERE deleted_at IS NULL
+		  AND (LOWER(name) LIKE $1 OR LOWER(email) LIKE $1)
+		ORDER BY %s %s
+		LIMIT $2 OFFSET $3
+	`, sortCol, order)
+
+	rows, err := db.Query(query, search, opt.Limit, opt.Offset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+
+	var out []User
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Name, &u.Email); err != nil {
+			return nil, 0, err
+		}
+		out = append(out, u)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, 0, err
+	}
+
+	return out, total, nil
+}
 
 func GetUsersFromDB(db *sql.DB, search string, limit, offset int, sortBy, order string) ([]User, int, error) {
 	if search != "" {

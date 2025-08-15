@@ -7,7 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 -- Avoid duplicate entries in the email column
 ALTER TABLE users
-ADD CONSTRAINT users_email_unique UNIQUE (email);
+    ADD CONSTRAINT users_email_unique UNIQUE (email);
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
 
 -- unique index to ensure case-insensitive uniqueness
 CREATE UNIQUE INDEX IF NOT EXISTS users_email_lower_unique
