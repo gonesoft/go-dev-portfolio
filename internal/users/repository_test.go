@@ -96,3 +96,35 @@ func TestCreateUserInDB(t *testing.T) {
 	assert.NoError(t, err, "Failed to insert user")
 	assert.Greater(t, user.ID, 0, "User ID should be greater than 0")
 }
+
+func TestListUserNoPaging(t *testing.T) {
+	conn := db.Connect()
+	_, _ = conn.Exec("DELETE FROM users") // Clear the table before testing
+
+	names := []string{"Alice", "Bob", "Charlie"}
+	emails := []string{"alice@xagonoft.com", "bob@xagonoft.com", "charlie@xagonoft.com"}
+	for i := range names {
+		_, err := conn.Exec("INSERT INTO users (name, email) VALUES ($1, $2)", names[i], emails[i])
+		assert.NoError(t, err, "Failed to insert user")
+	}
+
+	res, total, err := ListUsers(conn, ListOptions{Limit: 2, Offset: 0, SortBy: "name", Order: "ASC"})
+	assert.NoError(t, err, "Failed to list users")
+	assert.Equal(t, 3, total, "Total users should be 3")
+	assert.Equal(t, 2, len(res), "Should return 2 users due to limit")
+	assert.Equal(t, "Alice", res[0].Name, "First user should be Alice")
+	assert.Equal(t, "Bob", res[1].Name, "Second user should be Bob")
+
+	res, _, err = ListUsers(conn, ListOptions{Limit: 2, Offset: 1, SortBy: "name", Order: "ASC"})
+	assert.NoError(t, err, "Failed to list users with offset")
+	assert.Equal(t, 2, len(res), "Should return 2 users due to limit")
+	assert.Equal(t, "Bob", res[0].Name, "First user should be Bob")
+	assert.Equal(t, "Charlie", res[1].Name, "Second user should be Charlie")
+
+	_, _, err = ListUsers(conn, ListOptions{SortBy: "drop table users"})
+	assert.ErrorIs(t, err, ErrInvalidSort, "Should return error for invalid sort")
+
+	_, _, err = ListUsers(conn, ListOptions{SortBy: "id", Order: "SIDEWAYS"})
+	assert.ErrorIs(t, err, ErrInvalidOrder, "Should return error for invalid order")
+
+}

@@ -46,7 +46,7 @@ func ListUsers(db *sql.DB, opt ListOptions) ([]User, int, error) {
 
 	sortCol := strings.ToLower(opt.SortBy)
 
-	order := strings.ToLower(opt.SortBy)
+	order := strings.ToUpper(opt.Order)
 	if order != "ASC" && order != "DESC" {
 		return nil, 0, ErrInvalidOrder
 	}

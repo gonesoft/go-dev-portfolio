@@ -197,3 +197,54 @@ func GetUsers(w http.ResponseWriter, r *http.Request) {
 		"data":        usersList,
 	})
 }
+
+func GetUsersNoPaging(w http.ResponseWriter, r *http.Request) {
+	db := db.Connect()
+
+	// Parse query params
+	limit, _ := strconv.Atoi(r.URL.Query().Get("limit"))
+	offset, _ := strconv.Atoi(r.URL.Query().Get("offset"))
+	sortBy := r.URL.Query().Get("sort")
+	order := r.URL.Query().Get("order")
+	search := r.URL.Query().Get("search")
+
+	opts := ListOptions{
+		Search: search,
+		Limit:  limit,
+		Offset: offset,
+		SortBy: sortBy,
+		Order:  order,
+	}
+
+	list, total, err := ListUsers(db, opts)
+	if err != nil {
+		switch err {
+		case ErrInvalidSort:
+			http.Error(w, "invalid sort: allowed id,name,email,created_at", http.StatusBadRequest)
+			return
+		case ErrInvalidOrder:
+			http.Error(w, "invalid order: allowed ASC,DESC", http.StatusBadRequest)
+			return
+		default:
+			http.Error(w, "internal error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// compute total pages if client passed a limit (avoid div by zero)
+	totalPages := 0
+	if opts.Limit > 0 {
+		totalPages = (total + opts.Limit - 1) / opts.Limit
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
+		"limit":       opts.Limit,
+		"offset":      opts.Offset,
+		"total":       total,
+		"total_pages": totalPages,
+		"sort":        strings.ToLower(opts.SortBy),
+		"order":       strings.ToUpper(opts.Order),
+		"users":       list,
+	})
+}

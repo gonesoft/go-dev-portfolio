@@ -156,6 +156,30 @@ This document serves as a living roadmap, updated as I progress.
 3. Deleting a non-existent user → expect 404 Not Found.
    • ✅ Verified all repository and E2E tests pass for update/delete scenarios.
 
+## Day 14 – Pagination & Sorting for GET /users
+
+• ✅ Added pagination support to GET /users using query parameters:
+
+- `limit` (number of records to return, default: 10)
+- `offset` (number of records to skip, default: 0)
+  • ✅ Added sorting support to GET /users:
+- `sort` (column name to sort by, allowed: id, name, email, created_at)
+- `order` (sort direction, allowed: ASC, DESC)
+  • ✅ Validated query parameters to prevent SQL injection.
+  • ✅ Updated repository function to accept pagination and sorting parameters and construct safe SQL queries using placeholders for limit/offset.
+  • ✅ Updated HTTP handler to parse query params, apply defaults, and pass them to the repository layer.
+  • ✅ Added unit tests for repository function covering:
+- Default parameters
+- Custom limit/offset
+- Sorting by different fields in ascending and descending order
+  • ✅ Added E2E tests for GET /users:
+
+1. Fetch with default params.
+2. Fetch with limit & offset.
+3. Fetch with sorting by name ASC.
+4. Fetch with sorting by name DESC.
+5. Invalid sort or order param returns HTTP 400.
+
 ## Weeks 1–2 — Fundamentals
 
 **Goal:** Build a basic REST API in Go with CRUD against Postgres, containerized with Docker.

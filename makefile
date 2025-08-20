@@ -30,5 +30,8 @@ db-test-up:
 db-test-down:
 	$(DOCKER_COMPOSE) down -v postgres-test
 
+db-up:
+	$(DOCKER_COMPOSE) up -d
+
 test:
 	go test -v ./...
