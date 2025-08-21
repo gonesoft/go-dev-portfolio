@@ -1,14 +1,24 @@
-# go-dev-portfolio
+# Craftfolio
 
-How to effectively regain proficiency in Go development after an extended break, with a focus on sharpening logical thinking and re-engaging with the Go ecosystem.
+**Craftfolio** is a backend API project built in **Go (Golang)** with **PostgreSQL** and deployed to **AWS**.  
+It is designed as a **developer portfolio application**, where users can be created, managed, and queried through a clean and scalable CRUD architecture.
+
+This project demonstrates:
+
+- Building production-ready backend services without frameworks (pure Go).
+- Using PostgreSQL as the relational database for managing user records.
+- Dockerized development and testing setup.
+- Deployment to AWS with cloud-native best practices.
+
+The application is intended to showcase backend engineering skills for **real-world user management systems**, where “users” represent generic application users (not students, admins, etc.—but the foundation can be extended to those roles).
 
 # Go + Postgres + AWS Developer Portfolio
 
 ## Objective
 
-This repository documents my journey to **become a highly skilled backend developer** specializing in **Go (Golang)**, **PostgreSQL**, and **AWS**.
+This repository documents the development of **Craftfolio**, a real-world user management API and developer portfolio project. The goal is to demonstrate mastery of backend development with **Go (Golang)**, **PostgreSQL**, and **AWS** while following a 20-week roadmap.
 
-Over the course of 20 weeks, I will build real-world projects, practice clean code principles, and develop strong foundations in system design and algorithms.
+Over the course of 20 weeks, Craftfolio will be built step by step, applying clean code principles, real-world API design, and strong foundations in system design and algorithms.
 
 The roadmap includes:
 
@@ -37,11 +47,11 @@ Daily progress will be logged with commits, a `PLAN.md` file for the roadmap, an
 
 ## Milestones
 
-- **Week 1–2:** API fundamentals, local Postgres, CRUD, Docker.
-- **Week 3–8:** Concurrency, design patterns, Postgres advanced features.
-- **Week 9–12:** AWS deployments, microservices, CI/CD.
-- **Week 13–18:** System design, algorithms, interview prep.
-- **Week 19–20:** Applications, mock interviews, portfolio polishing.
+- **Week 1–2:** Build the foundation of Craftfolio — a Go API with PostgreSQL for user management. Containerize with Docker for local development.
+- **Week 3–8:** Enhance Craftfolio with concurrency patterns, clean architecture, and advanced PostgreSQL features (indexes, transactions).
+- **Week 9–12:** Deploy Craftfolio to AWS (ECS/Fargate, RDS, API Gateway). Set up CI/CD with GitHub Actions for automated testing and deployment.
+- **Week 13–18:** Extend Craftfolio with scalability features, apply system design principles, and refine backend performance. Practice algorithms alongside.
+- **Week 19–20:** Finalize Craftfolio as a polished portfolio project, add documentation, and prepare it for showcasing in interviews.
 
 ---
 
