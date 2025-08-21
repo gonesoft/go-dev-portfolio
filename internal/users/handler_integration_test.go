@@ -131,4 +131,16 @@ func TestUserLifeCycle(t *testing.T) {
 		resp, _ := http.DefaultClient.Do(req)
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode)
 	})
+
+	//9) List Users with Paging
+	t.Run("List Users with Paging", func(t *testing.T) {
+		resp, err := http.Get(ts.URL + "/users?limit=5&offset=0")
+		assert.NoError(t, err)
+		assert.Equal(t, http.StatusOK, resp.StatusCode)
+		defer resp.Body.Close()
+
+		var users []User
+		_ = json.NewDecoder(resp.Body).Decode(&users)
+		assert.LessOrEqual(t, len(users), 5, "Expected no more than 5 users in the response")
+	})
 }

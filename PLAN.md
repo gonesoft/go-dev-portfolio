@@ -180,6 +180,13 @@ This document serves as a living roadmap, updated as I progress.
 4. Fetch with sorting by name DESC.
 5. Invalid sort or order param returns HTTP 400.
 
+##Day 15 – Repository Integration Tests (Edge Cases)
+
+• ✅ Added repository integration tests with subtests:
+
+- ListUsers pagination & sorting (default, ASC by name)
+- ListUsers invalid sort/order (proper errors)
+
 ## Weeks 1–2 — Fundamentals
 
 **Goal:** Build a basic REST API in Go with CRUD against Postgres, containerized with Docker.
