@@ -12,8 +12,6 @@ This project demonstrates:
 
 The application is intended to showcase backend engineering skills for **real-world user management systems**, where “users” represent generic application users (not students, admins, etc.—but the foundation can be extended to those roles).
 
-# Go + Postgres + AWS Developer Portfolio
-
 ## Objective
 
 This repository documents the development of **Craftfolio**, a real-world user management API and developer portfolio project. The goal is to demonstrate mastery of backend development with **Go (Golang)**, **PostgreSQL**, and **AWS** while following a 20-week roadmap.
